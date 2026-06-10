@@ -5,15 +5,11 @@
 <div align="center">
 样例：店长特供1-1自动化<br />
 
-
-<video src="Res/sample01.mp4" width="600" controls>功能样例视频01</video>
-
+https://github.com/user-attachments/assets/237b0bca-1348-436c-8f40-6339056dffe3
 
 样例：钓鱼自动化 / 录屏时设备性能不佳，检测频率较低，效果一般<br />
 
-
-<video src="Res/sample02.mp4" width="600" controls>功能样例视频02</video>
-
+https://github.com/user-attachments/assets/b1f73144-e627-421b-937c-7d92685cd83c
 
 </div>
 

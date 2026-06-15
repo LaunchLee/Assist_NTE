@@ -561,7 +561,8 @@ Func Fishing($iBaseHeight = 759)
     EndIf
     If Not $bRunning Then Return
     If IsArray(ImageSearch($sGameResDir & "Fish_Catch.png", $fDefault, $arrFishCatch)) Or _
-       IsArray(ImageSearch($sGameResDir & "Fish_Catch2.png", $fHigh, $arrFishCatch2, Default, $CV_TM_SQDIFF_NORMED)) Then
+       IsArray(ImageSearch($sGameResDir & "Fish_Catch2.png", $fHigh, $arrFishCatch2, Default, $CV_TM_SQDIFF_NORMED)) Or _
+       IsArray(ImageSearch($sGameResDir & "Fish_Catch3.png", $fHigh, $arrFishCatch2, Default, $CV_TM_SQDIFF_NORMED)) Then
         Sleep($iReactionTime)
         ClickImage($sGameResDir & "Fish_Toss.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrFishToss)
         MouseMove($iAreaCenterX, $iAreaCenterY, 0)

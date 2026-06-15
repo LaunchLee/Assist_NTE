@@ -7,6 +7,7 @@
 #include <GDIPlus.au3>
 #include <GUIConstantsEx.au3>
 #include <ScreenCapture.au3>
+#include <StaticConstants.au3>
 
 ; Assume the game window size is 1282x759, not the client area size.
 ;   The size is it because my template images are captured on this size.
@@ -46,16 +47,35 @@ If Not IsObj($cv) Then
     Exit
 EndIf
 
+
+; The theme
+Global $bIsDark = False
+Global $c_Dark_BG       = 0x1F1F1F, $c_Dark_Text      = 0xF0F0F0
+Global $c_Light_BG      = 0xF3F3F3, $c_Light_Text     = 0x000000
+Global $c_Status_BG     = 0x000000, $c_Status_Text    = 0xFFFFFF
+Global $aThemeControls[20], $iCtrlCount = 0
+
+Func _RegisterThemeCtrl($iCtrlID)
+    $aThemeControls[$iCtrlCount] = $iCtrlID
+    $iCtrlCount += 1
+EndFunc
+
 ; The font and size.
 Local $sFont = "Segoe UI"
 Local $iFontSize = 10
 Local $iGUIWidth = Int(255 * $iWinScale), $iGUIHeight = Int(255 * $iWinScale)
 
-GUICreate("NTE Auto", $iGUIWidth, $iGUIHeight)
+Local $hGUI = GUICreate("NTE Auto", $iGUIWidth, $iGUIHeight)
 GUISetFont($iFontSize, $FW_NORMAL, 0, $sFont)
 
+; [ Normal, Hover, Clicked ] Colors
+Global $aBtnColor_Dark[3]  = [0x333333, 0x444444, 0x222222]
+Global $aBtnColor_Light[3] = [0xE1E1E1, 0xD0D0D0, 0xB8B8B8]
+Global $bBtnHovered = False
 Local $iBtnW = Int(100 * $iWinScale), $iBtnH = Int(40 * $iWinScale)
-Local $btnStart = GUICtrlCreateButton("Start", Int(($iGUIWidth - $iBtnW) / 2), Int(10 * $iWinScale), $iBtnW, $iBtnH)
+; Local $btnStart = GUICtrlCreateButton("Start", Int(($iGUIWidth - $iBtnW) / 2), Int(10 * $iWinScale), $iBtnW, $iBtnH)
+Global $btnStart = GUICtrlCreateLabel("Start", Int(($iGUIWidth - $iBtnW) / 2), Int(10 * $iWinScale), $iBtnW, $iBtnH, BitOR($SS_CENTER, $SS_CENTERIMAGE))
+GUICtrlSetFont($btnStart, 11, $FW_BOLD, 0, $sFont)
 
 Local $iPadTop = 3
 Local $iStatusW = Int(120 * $iWinScale), $iStatusH = Int(25 * $iWinScale) - $iPadTop
@@ -80,32 +100,120 @@ Local $aTipsText[3] = [ _
     "Tip3: 1280x720 by game settings." _
 ]
 For $i = 0 To 2
-    GUICtrlCreateLabel($aTipsText[$i], $iTipsX, $iTipsY + ($i * $iTipsGap), $iTipsW, $iTipsH)
+    Local $hIdTip = GUICtrlCreateLabel($aTipsText[$i], $iTipsX, $iTipsY + ($i * $iTipsGap), $iTipsW, $iTipsH)
+    _RegisterThemeCtrl($hIdTip)
 Next
+
+Local $iChkBoxW = Int(18 * $iWinScale)
+Local $iChkBoxP = Int(1 * $iWinScale)
 
 Local $iChkDebugW = Int(100 * $iWinScale), $iChkDebugH = Int(20 * $iWinScale)
 Local $iChkDebugY = $iGUIHeight - Int(25 * $iWinScale)
-Local $chkDebug = GUICtrlCreateCheckbox("Enable log", Int(($iGUIWidth - $iChkDebugW) / 2), $iChkDebugY, $iChkDebugW, $iChkDebugH)
+Local $iChkDebugX = Int(($iGUIWidth - $iChkDebugW) / 2)
+Local $chkDebug = GUICtrlCreateCheckbox("", $iChkDebugX, $iChkDebugY, $iChkBoxW, $iChkDebugH)
+Local $chkDebugText = GUICtrlCreateLabel("Enable log", $iChkDebugX + $iChkBoxW, $iChkDebugY + $iChkBoxP, $iChkDebugW - $iChkBoxW, $iChkDebugH)
+_RegisterThemeCtrl($chkDebugText)
 
 Local $iChkCafeW = Int(180 * $iWinScale), $iChkCafeH = Int(20 * $iWinScale)
 Local $iChkCafeY = $iChkDebugY - Int(25 * $iWinScale)
-Local $chkCafeGameAuto = GUICtrlCreateCheckbox("Enable CafeGame1-1 Auto", Int(($iGUIWidth - $iChkCafeW) / 2), $iChkCafeY, $iChkCafeW, $iChkCafeH)
+Local $iChkCafeX = Int(($iGUIWidth - $iChkCafeW) / 2)
+Local $chkCafeGameAuto = GUICtrlCreateCheckbox("", $iChkCafeX, $iChkCafeY, $iChkBoxW, $iChkCafeH)
+Local $chkCafeGameAutoText = GUICtrlCreateLabel("Enable CafeGame1-1 Auto", $iChkCafeX + $iChkBoxW, $iChkCafeY + $iChkBoxP, $iChkCafeW - $iChkBoxW, $iChkCafeH)
 GUICtrlSetState($chkCafeGameAuto, $GUI_CHECKED)
+_RegisterThemeCtrl($chkCafeGameAutoText)
 
 Local $iChkFishW = Int(180 * $iWinScale), $iChkFishH = Int(20 * $iWinScale)
 Local $iChkFishY = $iChkCafeY - Int(25 * $iWinScale)
-Local $chkFishAuto = GUICtrlCreateCheckbox("Enable Fishing Auto", Int(($iGUIWidth - $iChkFishW) / 2), $iChkFishY, $iChkFishW, $iChkFishH)
+Local $iChkFishX = Int(($iGUIWidth - $iChkFishW) / 2)
+Local $chkFishAuto = GUICtrlCreateCheckbox("", $iChkFishX, $iChkFishY, $iChkBoxW, $iChkFishH)
+Local $chkFishAutoText = GUICtrlCreateLabel("Enable Fishing Auto", $iChkFishX + $iChkBoxW, $iChkFishY + $iChkBoxP, $iChkFishW - $iChkBoxW, $iChkFishH)
 GUICtrlSetState($chkFishAuto, $GUI_CHECKED)
+_RegisterThemeCtrl($chkFishAutoText)
+
+; Listen to the theme change
+GUIRegisterMsg(0x001A, "WM_SETTINGCHANGE")
+_ApplySystemTheme($hGUI)
+
+Func WM_SETTINGCHANGE($hWnd, $iMsg, $wParam, $lParam)
+    _ApplySystemTheme($hGUI)
+    Return $GUI_RUNDEFMSG
+EndFunc
+
+Func _ApplySystemTheme($hWnd)
+    Local $iReg = RegRead("HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize", "AppsUseLightTheme")
+
+    If @error Then Return
+
+    Local $bCurrentIsDark = ($iReg == 0)
+    $bIsDark = $bCurrentIsDark
+
+    Local $cBkColor = $bIsDark ? $c_Dark_BG : $c_Light_BG
+    Local $cTextColor = $bIsDark ? $c_Dark_Text : $c_Light_Text
+
+    GUISetBkColor($cBkColor, $hWnd)
+
+    ; Button theme
+    Local $aCurrentBtnSrc = $bIsDark ? $aBtnColor_Dark : $aBtnColor_Light
+    GUICtrlSetBkColor($btnStart, $aCurrentBtnSrc[0])
+    GUICtrlSetColor($btnStart, $bIsDark ? 0xFFFFFF : 0x000000)
+
+    ; Ctrl theme
+    For $i = 0 To $iCtrlCount - 1
+        Local $hIdCtrl = $aThemeControls[$i]
+        GUICtrlSetColor($hIdCtrl, $cTextColor)
+        GUICtrlSetBkColor($hIdCtrl, $cBkColor)
+    Next
+
+    Local $pDark = DllStructCreate("int")
+    DllStructSetData($pDark, 1, $bIsDark ? 1 : 0)
+    DllCall("dwmapi.dll", "long", "DwmSetWindowAttribute", "hwnd", $hWnd, "dword", 20, "ptr", DllStructGetPtr($pDark), "dword", 4)
+EndFunc
+
+$iBtnLeft   = -1
+$iBtnTop    = -1
+$iBtnRight  = -1
+$iBtnBottom = -1
 
 ; GUI Start
 GUISetState(@SW_SHOW)
 HotKeySet("{END}", "ActionStop")
 While True
+    Local $aMousePos = GUIGetCursorInfo($hGUI)
+    If Not @error Then
+        Local $iMX = $aMousePos[0]
+        Local $iMY = $aMousePos[1]
+        Local $aColors = $bIsDark ? $aBtnColor_Dark : $aBtnColor_Light
+
+        If $iBtnLeft = -1 Then
+            Local $aBtnPos = ControlGetPos($hGUI, "", $btnStart)
+            $iBtnLeft   = $aBtnPos[0]
+            $iBtnTop    = $aBtnPos[1]
+            $iBtnRight  = $aBtnPos[0] + $aBtnPos[2]
+            $iBtnBottom = $aBtnPos[1] + $aBtnPos[3]
+        EndIf
+
+        If ($iMX >= $iBtnLeft And $iMX <= $iBtnRight) And ($iMY >= $iBtnTop And $iMY <= $iBtnBottom) Then
+            If Not $bBtnHovered Then
+                $bBtnHovered = True
+                GUICtrlSetBkColor($btnStart, $aColors[1])
+            EndIf
+        Else
+            If $bBtnHovered Then
+                $bBtnHovered = False
+                GUICtrlSetBkColor($btnStart, $aColors[0])
+            EndIf
+        EndIf
+    EndIf
+
     Switch GUIGetMsg()
         ; When click close button
         Case $GUI_EVENT_CLOSE
             Exit
         Case $btnStart
+            Local $aColors = $bIsDark ? $aBtnColor_Dark : $aBtnColor_Light
+            GUICtrlSetBkColor($btnStart, $aColors[2])
+            Sleep(80)
+            GUICtrlSetBkColor($btnStart, $aColors[1])
             If $bRunning Then
                 ActionStop()
             Else

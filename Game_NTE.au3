@@ -334,7 +334,7 @@ EndFunc
 
 ; Autoclick Function Group
 Func FarmCPByCafeGame()
-    Local $fLow = 0.55, $fDefault = 0.60, $fHigh = 0.65
+    Local $fLow = 0.55, $fDefault = 0.60, $fHigh = 0.90
     Local $bCD = False, $iCDFactor = 2
 
     Local $arrCafeGameLast = [14, 640, 200, 55]
@@ -352,12 +352,13 @@ Func FarmCPByCafeGame()
     If ClickImage($sGameResDir & "CafeGame_1-1.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrCafeGame0101) Then
         If ClickImage($sGameResDir & "CafeGame_Start.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrCafeGameStart) Then
             $iCafeGameState = 1
-            $hCafeGameTimer = TimerInit()
         EndIf
     EndIf
 
     If Not $bRunning Then Return
 
+    Local $Endless = 0
+    Local $arrOnReadyGo = [579, 53, 130, 29]
     Local $arrOnLBaseA = [0, 658, 167, 101]
     Local $arrOnLBaseB = [407, 658, 167, 101]
     Local $arrOnLCut = [176, 653, 229, 106]
@@ -372,63 +373,67 @@ Func FarmCPByCafeGame()
     Local $arrOnMDishC = [687, 463, 61, 50]
     Local $arrOnTitle = [1073, 64, 126, 28]
     Local $arrOnExit = [4, 40, 55, 56]
-    If IsArray(ImageSearch($sGameResDir & "CafeGame_1-1\OnTitle.png", $fDefault, $arrOnTitle)) And $iCafeGameState > 0 Then
-        If $iCafeGameState = 1 And TimerDiff($hCafeGameTimer) > 5000 Then
-            If ClickImage($sGameResDir & "CafeGame_1-1\OnLBaseA.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLBaseA) Then
+    While $iCafeGameState > 0 And $Endless <= 10
+        If IsArray(ImageSearch($sGameResDir & "CafeGame_1-1\OnTitle.png", $fDefault, $arrOnTitle)) And $iCafeGameState > 0 Then
+            If $iCafeGameState = 1 And IsArray(ImageSearch($sGameResDir & "CafeGame_1-1\OnReadyGo.png", $fDefault, $arrOnReadyGo)) Then
+                If ClickImage($sGameResDir & "CafeGame_1-1\OnLBaseA.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLBaseA) Then
+                    $iCafeGameState += 1
+                    $hCafeGameTimer = TimerInit()
+                EndIf
+            EndIf
+            If $iCafeGameState = 2 And ClickImage($sGameResDir & "CafeGame_1-1\OnMBase.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnMBase) Then
                 $iCafeGameState += 1
-                $hCafeGameTimer = TimerInit()
             EndIf
-        EndIf
-        If $iCafeGameState = 2 And ClickImage($sGameResDir & "CafeGame_1-1\OnMBase.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnMBase) Then
-            $iCafeGameState += 1
-        EndIf
-        If $iCafeGameState = 3 And TimerDiff($hCafeGameTimer) > 2500 Then
-            If ClickImage($sGameResDir & "CafeGame_1-1\OnLBaseB.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLBaseB) Then
+            If $iCafeGameState = 3 And TimerDiff($hCafeGameTimer) > 3000 Then
+                If ClickImage($sGameResDir & "CafeGame_1-1\OnLBaseB.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLBaseB) Then
+                    $iCafeGameState += 1
+                    $hCafeGameTimer = TimerInit()
+                EndIf
+            EndIf
+            If $iCafeGameState = 4 And TimerDiff($hCafeGameTimer) > 3000 Then
+                If ClickImage($sGameResDir & "CafeGame_1-1\OnLHoldBS1A.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLHoldB) Then
+                    $iCafeGameState += 1
+                    $hCafeGameTimer = TimerInit()
+                EndIf
+            EndIf
+            If $iCafeGameState = 5 And ClickImage($sGameResDir & "CafeGame_1-1\OnMBakeS1A.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnMBake) Then
                 $iCafeGameState += 1
-                $hCafeGameTimer = TimerInit()
             EndIf
-        EndIf
-        If $iCafeGameState = 4 And TimerDiff($hCafeGameTimer) > 2500 Then
-            If ClickImage($sGameResDir & "CafeGame_1-1\OnLHoldBS1A.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLHoldB) Then
-                $iCafeGameState += 1
-                $hCafeGameTimer = TimerInit()
+            If $iCafeGameState = 6 And TimerDiff($hCafeGameTimer) > 1000 Then
+                If ClickImage($sGameResDir & "CafeGame_1-1\OnLDishC.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLDishC) Then
+                    $iCafeGameState += 1
+                    $hCafeGameTimer = TimerInit()
+                EndIf
             EndIf
-        EndIf
-        If $iCafeGameState = 5 And ClickImage($sGameResDir & "CafeGame_1-1\OnMBakeS1A.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnMBake) Then
-            $iCafeGameState += 1
-        EndIf
-        If $iCafeGameState = 6 And TimerDiff($hCafeGameTimer) > 1000 Then
-            If ClickImage($sGameResDir & "CafeGame_1-1\OnLDishC.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLDishC) Then
-                $iCafeGameState += 1
-                $hCafeGameTimer = TimerInit()
+            If $iCafeGameState = 7 And TimerDiff($hCafeGameTimer) > 2000 Then
+                If ClickImage($sGameResDir & "CafeGame_1-1\OnMDishC.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnMDishC) Then
+                    $iCafeGameState += 1
+                    $hCafeGameTimer = TimerInit()
+                EndIf
             EndIf
-        EndIf
-        If $iCafeGameState = 7 And TimerDiff($hCafeGameTimer) > 2500 Then
-            If ClickImage($sGameResDir & "CafeGame_1-1\OnMDishC.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnMDishC) Then
-                $iCafeGameState += 1
-                $hCafeGameTimer = TimerInit()
+            If $iCafeGameState = 8 And TimerDiff($hCafeGameTimer) > 5000 Then
+                If ClickImage($sGameResDir & "CafeGame_1-1\OnLHoldAS1A.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLHoldA) Then
+                    $iCafeGameState += 1
+                    $hCafeGameTimer = TimerInit()
+                EndIf
             EndIf
-        EndIf
-        If $iCafeGameState = 8 And TimerDiff($hCafeGameTimer) > 3500 Then
-            If ClickImage($sGameResDir & "CafeGame_1-1\OnLHoldAS1A.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLHoldA) Then
-                $iCafeGameState += 1
-                $hCafeGameTimer = TimerInit()
+            If $iCafeGameState = 9 And TimerDiff($hCafeGameTimer) > 1000 Then
+                If ClickImage($sGameResDir & "CafeGame_1-1\OnLDishB.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLDishB) Then
+                    $iCafeGameState += 1
+                    $hCafeGameTimer = TimerInit()
+                EndIf
             EndIf
-        EndIf
-        If $iCafeGameState = 9 And TimerDiff($hCafeGameTimer) > 1000 Then
-            If ClickImage($sGameResDir & "CafeGame_1-1\OnLDishB.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnLDishB) Then
-                $iCafeGameState += 1
-                $hCafeGameTimer = TimerInit()
+            If $iCafeGameState = 10 And TimerDiff($hCafeGameTimer) > 500 Then
+                If ClickImage($sGameResDir & "CafeGame_1-1\OnExit.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnExit) Then
+                    $iCafeGameState = 0
+                EndIf
             EndIf
+        Else
+            $Endless += 1
         EndIf
-        If $iCafeGameState = 10 And TimerDiff($hCafeGameTimer) > 500 Then
-            If ClickImage($sGameResDir & "CafeGame_1-1\OnExit.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrOnExit) Then
-                $iCafeGameState = 0
-            EndIf
-        EndIf
-    EndIf
 
-    If Not $bRunning Then Return
+        If Not $bRunning Then Return
+    WEnd
 
     Local $arrCafeGameFail = [537, 146, 214, 76]
     Local $arrCafeGameFailExit = [462, 574, 92, 46]
@@ -438,7 +443,7 @@ Func FarmCPByCafeGame()
         ClickImage($sGameResDir & "CafeGame_FailExit.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrCafeGameFailExit)
     EndIf
     If IsArray(ImageSearch($sGameResDir & "CafeGame_Win.png", $fDefault, $arrCafeGameFail)) Then
-        If IsArray(ImageSearch($sGameResDir & "CafeGame_NoGains.png", $fDefault, $arrCafeGameNoGains)) Then
+        If IsArray(ImageSearch($sGameResDir & "CafeGame_NoGains.png", $fHigh, $arrCafeGameNoGains)) Then
             ActionStop()
             Return
         EndIf

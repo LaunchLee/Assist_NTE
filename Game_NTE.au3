@@ -553,6 +553,7 @@ Func FarmCPByCafeGame()
     If IsArray(ImageSearch($sGameResDir & "CafeGame_Win.png", $fDefault, $arrCafeGameFail)) Then
         If IsArray(ImageSearch($sGameResDir & "CafeGame_NoGains.png", $fHigh, $arrCafeGameNoGains)) Then
             ActionStop()
+            GUICtrlSetData($lblStatus, "  Cafe: Limited   ")
             Return
         EndIf
         ClickImage($sGameResDir & "CafeGame_WinGet.png", $fDefault, 0, 0, $bCD, $iCDFactor, $arrCafeGameWinGet)
@@ -572,6 +573,7 @@ Func Fishing($iBaseHeight = 759)
     Local $arrFishDone = [557, 671, 169, 40]
     Local $arrFishFail = [570, 368, 137, 57]
     Local $arrFishNoBaits = [504, 362, 280, 73]
+    Local $arrFishFull = [440, 372, 400, 55]
 
     Local $arrArea = _WinAPI_GetPosWithoutShadow($sGameWinTitle)
 
@@ -662,6 +664,12 @@ Func Fishing($iBaseHeight = 759)
         EndIf
         If IsArray(ImageSearch($sGameResDir & "Fish_NoBaits.png", $fDefault, $arrFishNoBaits)) Then
             ActionStop()
+            GUICtrlSetData($lblStatus, "    Fish: NoBaits ")
+            Return
+        EndIf
+        If IsArray(ImageSearch($sGameResDir & "Fish_Full.png", $fDefault, $arrFishFull)) Then
+            ActionStop()
+            GUICtrlSetData($lblStatus, "    Fish: Full    ")
             Return
         EndIf
     WEnd
@@ -687,6 +695,12 @@ Func Fishing($iBaseHeight = 759)
     EndIf
     If IsArray(ImageSearch($sGameResDir & "Fish_NoBaits.png", $fDefault, $arrFishNoBaits)) Then
         ActionStop()
+        GUICtrlSetData($lblStatus, "    Fish: NoBaits ")
+        Return
+    EndIf
+    If IsArray(ImageSearch($sGameResDir & "Fish_Full.png", $fDefault, $arrFishFull)) Then
+        ActionStop()
+        GUICtrlSetData($lblStatus, "    Fish: Full    ")
         Return
     EndIf
 EndFunc
